@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Игра "Кто как говорит?"</title>
+  <style>
+    :root {
+      --card-size: min(28vw, 320px);
+      --shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: #15233a;
+      background: #c7ecff url("fon.png") center / cover no-repeat fixed;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .game {
+      width: min(1400px, 100%);
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 2vw, 28px);
+      text-align: center;
+    }
+
+    .title {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 52px);
+    }
+
+    .task {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 3.8vw, 54px);
+      font-weight: 800;
+    }
+
+    .status {
+      min-height: 1.5em;
+      margin: 4px 0 20px;
+      font-size: clamp(24px, 2.8vw, 40px);
+      font-weight: 700;
+    }
+
+    .status.ok {
+      color: #0a8f3d;
+    }
+
+    .status.error {
+      color: #d6362f;
+    }
+
+    .animals {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: clamp(16px, 2.4vw, 30px);
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .animal-btn {
+      width: var(--card-size);
+      border: 0;
+      border-radius: 22px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    .animal-btn:active {
+      transform: scale(0.97);
+    }
+
+    .animal-btn img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      border-radius: 14px;
+      display: block;
+      background: #f4fbff;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .next-btn {
+      border: 0;
+      border-radius: 14px;
+      background: #1f8fff;
+      color: #fff;
+      font-size: clamp(18px, 1.9vw, 28px);
+      font-weight: 700;
+      padding: 12px 26px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      touch-action: manipulation;
+    }
+
+    .next-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1 class="title">Кто как говорит?</h1>
+    <p id="task" class="task"></p>
+    <p id="status" class="status"></p>
+    <section id="animals" class="animals"></section>
+    <div class="controls">
+      <button id="nextBtn" class="next-btn">Дальше</button>
+    </div>
+  </main>
+
+  <script>
+    const animals = [
+      { id: "dog", name: "Собака", soundText: "Гав", imageFile: "dog.png", soundFile: "dog.m4a" },
+      { id: "cat", name: "Котенок", soundText: "Мяу", imageFile: "cat.png", soundFile: "cat.m4a" },
+      { id: "duck", name: "Утка", soundText: "Кря-кря", imageFile: "duck.png", soundFile: "duck.m4a" },
+      { id: "cow", name: "Коровка", soundText: "Му-у", imageFile: "cow.png", soundFile: "cow.m4a" },
+      { id: "goat", name: "Козочка", soundText: "Ме-е", imageFile: "goat.png", soundFile: "goat.m4a" },
+      { id: "horse", name: "Лошадка", soundText: "Иго-го", imageFile: "horse.png", soundFile: "horse.m4a" }
+    ];
+    const cardsPerRound = 3;
+
+    const wrongAudio = new Audio("wrong.m4a");
+    const audioById = Object.fromEntries(
+      animals.map((animal) => [animal.id, new Audio(animal.soundFile)])
+    );
+
+    const taskEl = document.getElementById("task");
+    const statusEl = document.getElementById("status");
+    const nextBtn = document.getElementById("nextBtn");
+    const animalsEl = document.getElementById("animals");
+
+    let targetAnimal = null;
+    let canTap = true;
+    let autoNextTimeoutId = null;
+    let currentRoundAnimals = [];
+    let roundQueue = [];
+    let roundQueueIndex = 0;
+
+    function shuffle(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function pickRoundAnimals() {
+      const shuffled = shuffle(animals);
+      currentRoundAnimals = shuffled.slice(0, Math.min(cardsPerRound, animals.length));
+      roundQueue = shuffle([...currentRoundAnimals]);
+      roundQueueIndex = 0;
+    }
+
+    function renderCurrentRound() {
+      animalsEl.innerHTML = "";
+      currentRoundAnimals.forEach((animal) => {
+        const button = document.createElement("button");
+        button.className = "animal-btn";
+        button.dataset.id = animal.id;
+        button.setAttribute("aria-label", animal.name);
+        button.innerHTML = `<img src="${animal.imageFile}" alt="${animal.name}" />`;
+        button.addEventListener("click", () => onAnimalTap(animal.id));
+        animalsEl.appendChild(button);
+      });
+    }
+
+    function stopAllAudio() {
+      if (autoNextTimeoutId) {
+        window.clearTimeout(autoNextTimeoutId);
+        autoNextTimeoutId = null;
+      }
+      Object.values(audioById).forEach((audio) => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.onended = null;
+      });
+      wrongAudio.pause();
+      wrongAudio.currentTime = 0;
+      wrongAudio.onended = null;
+    }
+
+    function showStatus(text, ok) {
+      statusEl.textContent = text;
+      statusEl.className = `status ${ok ? "ok" : "error"}`;
+    }
+
+    function playAudio(audio) {
+      stopAllAudio();
+      audio.currentTime = 0;
+      audio.play().catch(() => {
+        showStatus("Нажмите по экрану еще раз, чтобы включить звук.", false);
+      });
+    }
+
+    function startNextRound() {
+      pickRoundAnimals();
+      renderCurrentRound();
+      pickNextTarget();
+    }
+
+    function pickNextTarget() {
+      if (animals.length === 0) {
+        taskEl.textContent = "Добавьте животных в игру.";
+        return;
+      }
+
+      if (currentRoundAnimals.length === 0 || roundQueueIndex >= roundQueue.length) {
+        startNextRound();
+        return;
+      }
+
+      targetAnimal = roundQueue[roundQueueIndex];
+      roundQueueIndex += 1;
+
+      taskEl.textContent = `Кто говорит "${targetAnimal.soundText}"?`;
+      statusEl.textContent = "";
+      statusEl.className = "status";
+      canTap = true;
+    }
+
+    function onAnimalTap(animalId) {
+      if (!canTap || !targetAnimal) return;
+
+      if (animalId === targetAnimal.id) {
+        showStatus("Правильно!", true);
+        const correctAudio = audioById[animalId];
+        playAudio(correctAudio);
+        canTap = false;
+
+        const goToNext = () => {
+          correctAudio.onended = null;
+          pickNextTarget();
+        };
+        correctAudio.onended = goToNext;
+        autoNextTimeoutId = window.setTimeout(goToNext, 2500);
+      } else {
+        showStatus("Подумай еще!", false);
+        playAudio(wrongAudio);
+      }
+    }
+
+    nextBtn.addEventListener("click", startNextRound);
+
+    startNextRound();
+  </script>
+</body>
+</html>

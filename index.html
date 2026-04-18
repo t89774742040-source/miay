@@ -342,11 +342,31 @@
         justify-content: center;
       }
 
+      .splash-ui {
+        width: auto;
+        max-width: 92vw;
+      }
+
+      .splash-start {
+        min-width: unset;
+        width: fit-content;
+        max-width: 92vw;
+        padding: 12px 22px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
       .next-btn,
       .start-btn,
       .stop-btn {
-        width: 100%;
-        max-width: 320px;
+        width: fit-content;
+        min-width: unset;
+        max-width: 92vw;
+        padding: 10px 20px;
       }
     }
   </style>

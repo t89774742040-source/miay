@@ -28,6 +28,8 @@
     }
 
     .game {
+      position: relative;
+      overflow: hidden;
       width: min(1400px, 100%);
       background: rgba(255, 255, 255, 0.88);
       border-radius: 24px;
@@ -36,21 +38,124 @@
       text-align: center;
     }
 
+    .game.game--splash-open {
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      border-radius: 0;
+      width: min(100%, 1280px);
+    }
+
+    .splash {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-end;
+      min-height: min(72vh, 620px);
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .game.game--splash-open .splash {
+      min-height: min(78vh, 680px);
+    }
+
+    .splash-title {
+      position: absolute;
+      top: clamp(10px, 2.5vh, 28px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      width: 94%;
+      max-width: 36ch;
+      margin: 0;
+      padding: 0 8px;
+      font-size: clamp(22px, 3.4vw, 44px);
+      font-weight: 800;
+      line-height: 1.15;
+      color: #143a66;
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.95),
+        0 0 22px rgba(255, 255, 255, 0.75),
+        0 1px 0 rgba(255, 255, 255, 0.9);
+      pointer-events: none;
+    }
+
+    .splash-bg {
+      position: absolute;
+      inset: 0;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .splash-bg--tv {
+      background-image: url("splash-tv.png");
+    }
+
+    .splash-bg--mobile {
+      display: none;
+      background-image: url("splash-mobile.png");
+    }
+
+    @media (max-width: 900px) and (orientation: portrait) {
+      .splash-bg--tv {
+        display: none;
+      }
+
+      .splash-bg--mobile {
+        display: block;
+      }
+    }
+
+    .splash-actions {
+      position: absolute;
+      left: 50%;
+      top: 32%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      width: 100%;
+      max-width: 100%;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .splash-actions .splash-start {
+      pointer-events: auto;
+    }
+
+    .splash-start {
+      min-width: min(280px, 86vw);
+      padding: 14px 28px;
+      font-size: clamp(20px, 4.5vw, 28px);
+      margin-bottom: 0;
+    }
+
+    .game-main {
+      position: relative;
+      z-index: 1;
+    }
+
     .title {
       margin: 0 0 10px;
-      font-size: clamp(28px, 4vw, 52px);
+      font-size: clamp(24px, 3.2vw, 42px);
     }
 
     .task {
       margin: 0 0 8px;
-      font-size: clamp(30px, 3.8vw, 54px);
+      font-size: clamp(22px, 3vw, 38px);
       font-weight: 800;
     }
 
     .status {
       min-height: 1.5em;
       margin: 4px 0 20px;
-      font-size: clamp(24px, 2.8vw, 40px);
+      font-size: clamp(18px, 2.2vw, 30px);
       font-weight: 700;
     }
 
@@ -97,15 +202,18 @@
     }
 
     .controls {
-      margin-top: 8px;
+      margin-top: 12px;
       display: flex;
       justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .next-btn {
+    .next-btn,
+    .start-btn,
+    .stop-btn {
       border: 0;
       border-radius: 14px;
-      background: #1f8fff;
       color: #fff;
       font-size: clamp(18px, 1.9vw, 28px);
       font-weight: 700;
@@ -115,49 +223,172 @@
       touch-action: manipulation;
     }
 
-    .next-btn:active {
+    .next-btn {
+      background: #1f8fff;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #2db85f, #14a44d);
+    }
+
+    .stop-btn {
+      background: linear-gradient(135deg, #ef4e4e, #d6362f);
+    }
+
+    .next-btn:active,
+    .start-btn:active,
+    .stop-btn:active {
       transform: scale(0.98);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --card-size: min(42vw, 280px);
+      }
+
+      body {
+        padding: 12px;
+        background-attachment: scroll;
+      }
+
+      .splash {
+        min-height: min(62vh, 540px);
+      }
+
+      .splash-actions {
+        top: 30%;
+      }
+
+      .game:not(.game--splash-open) {
+        border-radius: 18px;
+        padding: 14px;
+      }
+
+      .title {
+        margin-bottom: 8px;
+      }
+
+      .task {
+        margin-bottom: 6px;
+      }
+
+      .status {
+        margin-bottom: 12px;
+      }
+
+      .animals {
+        gap: 12px;
+      }
+
+      .animal-btn {
+        border-radius: 16px;
+        padding: 8px;
+      }
+
+      .animal-btn img {
+        border-radius: 10px;
+      }
+
+      .controls {
+        position: sticky;
+        bottom: 0;
+        padding-top: 8px;
+      }
+
+      .next-btn,
+      .start-btn,
+      .stop-btn {
+        min-width: min(42vw, 230px);
+        padding: 10px 18px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      :root {
+        --card-size: min(44vw, 190px);
+      }
+
+      .animals {
+        justify-content: center;
+      }
+
+      .next-btn,
+      .start-btn,
+      .stop-btn {
+        width: 100%;
+        max-width: 320px;
+      }
     }
   </style>
 </head>
 <body>
   <main class="game">
-    <h1 class="title">Кто как говорит?</h1>
-    <p id="task" class="task"></p>
-    <p id="status" class="status"></p>
-    <section id="animals" class="animals"></section>
-    <div class="controls">
-      <button id="nextBtn" class="next-btn">Дальше</button>
+    <div id="splash" class="splash">
+      <div class="splash-bg splash-bg--tv" aria-hidden="true"></div>
+      <div class="splash-bg splash-bg--mobile" aria-hidden="true"></div>
+      <h1 class="splash-title">Кто как говорит?</h1>
+      <div class="splash-actions">
+        <button id="startBtn" type="button" class="start-btn splash-start">Начать игру</button>
+      </div>
+    </div>
+    <div id="gameMain" class="game-main hidden">
+      <h1 class="title">Кто как говорит?</h1>
+      <p id="task" class="task"></p>
+      <p id="status" class="status"></p>
+      <section id="animals" class="animals"></section>
+      <div class="controls">
+        <button id="nextBtn" type="button" class="next-btn">Дальше</button>
+        <button id="stopBtn" type="button" class="stop-btn">Стоп</button>
+      </div>
     </div>
   </main>
 
   <script>
     const animals = [
-      { id: "dog", name: "Собака", soundText: "Гав", imageFile: "dog.png", soundFile: "dog.m4a" },
-      { id: "cat", name: "Котенок", soundText: "Мяу", imageFile: "cat.png", soundFile: "cat.m4a" },
-      { id: "duck", name: "Утка", soundText: "Кря-кря", imageFile: "duck.png", soundFile: "duck.m4a" },
-      { id: "cow", name: "Коровка", soundText: "Му-у", imageFile: "cow.png", soundFile: "cow.m4a" },
-      { id: "goat", name: "Козочка", soundText: "Ме-е", imageFile: "goat.png", soundFile: "goat.m4a" },
-      { id: "horse", name: "Лошадка", soundText: "Иго-го", imageFile: "horse.png", soundFile: "horse.m4a" }
+      { id: "dog", name: "Собака", soundText: "Гав", imageFile: "dog.png", soundFile: "dog.m4a", questionFile: "q_dog.m4a" },
+      { id: "cat", name: "Котенок", soundText: "Мяу", imageFile: "cat.png", soundFile: "cat.m4a", questionFile: "q_cat.m4a" },
+      { id: "duck", name: "Утка", soundText: "Кря-кря", imageFile: "duck.png", soundFile: "duck.m4a", questionFile: "q_duck.m4a" },
+      { id: "cow", name: "Коровка", soundText: "Му-у", imageFile: "cow.png", soundFile: "cow.m4a", questionFile: "q_cow.m4a" },
+      { id: "goat", name: "Козочка", soundText: "Ме-е", imageFile: "goat.png", soundFile: "goat.m4a", questionFile: "q_goat.m4a" },
+      { id: "horse", name: "Лошадка", soundText: "Иго-го", imageFile: "horse.png", soundFile: "horse.m4a", questionFile: "q_horse.m4a" }
     ];
-    const cardsPerRound = 3;
+    let cardsPerRound = 3;
 
     const wrongAudio = new Audio("wrong.m4a");
     const audioById = Object.fromEntries(
       animals.map((animal) => [animal.id, new Audio(animal.soundFile)])
     );
+    const questionAudioById = Object.fromEntries(
+      animals.map((animal) => [animal.id, new Audio(animal.questionFile)])
+    );
 
+    const gameRoot = document.querySelector("main.game");
+    const splashEl = document.getElementById("splash");
+    const gameMainEl = document.getElementById("gameMain");
     const taskEl = document.getElementById("task");
     const statusEl = document.getElementById("status");
+    const startBtn = document.getElementById("startBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const stopBtn = document.getElementById("stopBtn");
     const animalsEl = document.getElementById("animals");
 
     let targetAnimal = null;
     let canTap = true;
+    let hasUserGesture = false;
+    let gameStarted = false;
     let autoNextTimeoutId = null;
+    let questionTimeoutId = null;
     let currentRoundAnimals = [];
     let roundQueue = [];
     let roundQueueIndex = 0;
+
+    function updateLayoutSettings() {
+      cardsPerRound = window.matchMedia("(max-width: 560px)").matches ? 2 : 3;
+    }
 
     function shuffle(list) {
       const copy = [...list];
@@ -188,12 +419,29 @@
       });
     }
 
+    function updateControls() {
+      splashEl.classList.toggle("hidden", gameStarted);
+      gameMainEl.classList.toggle("hidden", !gameStarted);
+      nextBtn.classList.toggle("hidden", !gameStarted);
+      stopBtn.classList.toggle("hidden", !gameStarted);
+      gameRoot.classList.toggle("game--splash-open", !gameStarted);
+    }
+
     function stopAllAudio() {
       if (autoNextTimeoutId) {
         window.clearTimeout(autoNextTimeoutId);
         autoNextTimeoutId = null;
       }
+      if (questionTimeoutId) {
+        window.clearTimeout(questionTimeoutId);
+        questionTimeoutId = null;
+      }
       Object.values(audioById).forEach((audio) => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.onended = null;
+      });
+      Object.values(questionAudioById).forEach((audio) => {
         audio.pause();
         audio.currentTime = 0;
         audio.onended = null;
@@ -211,12 +459,26 @@
     function playAudio(audio) {
       stopAllAudio();
       audio.currentTime = 0;
-      audio.play().catch(() => {
-        showStatus("Нажмите по экрану еще раз, чтобы включить звук.", false);
-      });
+      audio.play().catch(() => {});
+    }
+
+    function playQuestionAudio() {
+      if (!targetAnimal) return;
+      const questionAudio = questionAudioById[targetAnimal.id];
+      if (!questionAudio) return;
+
+      if (questionTimeoutId) {
+        window.clearTimeout(questionTimeoutId);
+      }
+      questionTimeoutId = window.setTimeout(() => {
+        questionTimeoutId = null;
+        playAudio(questionAudio);
+      }, 250);
     }
 
     function startNextRound() {
+      if (!gameStarted) return;
+      updateLayoutSettings();
       pickRoundAnimals();
       renderCurrentRound();
       pickNextTarget();
@@ -240,9 +502,16 @@
       statusEl.textContent = "";
       statusEl.className = "status";
       canTap = true;
+      playQuestionAudio();
     }
 
     function onAnimalTap(animalId) {
+      if (!gameStarted) return;
+      if (!hasUserGesture) {
+        hasUserGesture = true;
+        playQuestionAudio();
+        return;
+      }
       if (!canTap || !targetAnimal) return;
 
       if (animalId === targetAnimal.id) {
@@ -263,9 +532,37 @@
       }
     }
 
-    nextBtn.addEventListener("click", startNextRound);
+    function startGame() {
+      gameStarted = true;
+      hasUserGesture = true;
+      statusEl.textContent = "";
+      statusEl.className = "status";
+      updateControls();
+      startNextRound();
+    }
 
-    startNextRound();
+    function stopGame() {
+      gameStarted = false;
+      canTap = false;
+      targetAnimal = null;
+      stopAllAudio();
+      taskEl.textContent = "";
+      statusEl.textContent = "";
+      statusEl.className = "status";
+      animalsEl.innerHTML = "";
+      updateControls();
+    }
+
+    startBtn.addEventListener("click", startGame);
+    nextBtn.addEventListener("click", () => {
+      startNextRound();
+    });
+    stopBtn.addEventListener("click", stopGame);
+
+    updateLayoutSettings();
+    window.addEventListener("resize", updateLayoutSettings);
+    taskEl.textContent = "";
+    updateControls();
   </script>
 </body>
 </html>
